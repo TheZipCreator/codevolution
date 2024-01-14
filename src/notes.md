@@ -42,3 +42,6 @@ A in r2
   ...
 ```
 which catted twice. Due to the way I'm scoring this (levenshtein distance from an input), I think this scores lower than just doing it once (since at some point it's just printing zeroes, which do not exist in the original input).
+
+## `double`
+It really struggles on this one. It can't seem to realize it needs to multiply the input by two. I think I'm gonna modify the levenshtein distance to take into account the ASCII distance between characters

@@ -38,9 +38,12 @@ fn stringDist(s: []const u8, t: []const u8) usize {
 	for(0..s.len) |i| {
 		v1[0] = i+1;
 		for(0..t.len) |j| {
-			const deletionCost = v0[j+1]+1;
-			const insertionCost = v1[j]+1;
-			const subsitutionCost = if(s[i] == t[j]) v0[j] else v0[j]+1;
+			const deletionCost = v0[j+1]+255;
+			const insertionCost = v1[j]+255;
+			const subsitutionCost = v0[j]+@abs(@as(i16, @intCast(s[i]))-@as(i16, @intCast(t[j])));
+			// const deletionCost = v0[j+1]+1;
+			// const insertionCost = v1[j]+1;
+			// const subsitutionCost = if(s[i] == t[j]) v0[j] else v0[j]+1;
 			v1[j+1] = @min(deletionCost, @min(insertionCost, subsitutionCost));
 		}
 		// swap v0 with v1

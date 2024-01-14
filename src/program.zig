@@ -203,9 +203,15 @@ pub const Program = struct {
 	pub inline fn terminated(self: Program) bool {
 		return self.ip >= self.code.len;
 	}
-
+	
 	/// Mutates the program
 	pub fn mutate(self: *Program, ally: Allocator, rng: Random) !void {
+		// if len == 0 all we can do is just add an instruction
+		if(self.code.len == 0) {
+			self.code = try ally.realloc(self.code, self.code.len+1);
+			self.code[0] = Instruction.random(rng);
+			return;
+		}
 		const mutType = rng.enumValue(enum { modify, replace, swap, add, remove });
 		// *maybe* I should've made `code` an ArrayList so I wouldn't have to do manual array management here, but whatever
 		switch(mutType) {
@@ -214,7 +220,7 @@ pub const Program = struct {
 			.swap => std.mem.swap(Instruction, &self.code[rng.uintLessThan(usize, self.code.len)], &self.code[rng.uintLessThan(usize, self.code.len)]),
 			.add => {
 				// adds an instruction
-				const idx = rng.uintLessThan(usize, self.code.len);
+				const idx = if(self.code.len == 0) 0 else rng.uintLessThan(usize, self.code.len);
 				// insert instruction
 				self.code = try ally.realloc(self.code, self.code.len+1);
 				std.mem.copyBackwards(Instruction, self.code[idx+1..], self.code[idx..self.code.len-1]);

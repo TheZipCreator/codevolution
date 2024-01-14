@@ -186,8 +186,6 @@ pub const Generation = struct {
 	
 	/// Generates a random generation with `size` programs
 	pub fn random(ally: Allocator, rng: Random, goal: Goal, size: usize, optmem: bool) !Generation {
-		if(size%2 != 0)
-			return error.GenerationSizeMustBeEven;
 		var programs: []PrgmFit = undefined;
 		var roots: []Tree = undefined;
 		var nameToTree: StringHashMap(*Tree) = undefined;

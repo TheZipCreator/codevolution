@@ -79,10 +79,6 @@ pub fn main() !void {
 			const a = try getArgs(stdout, args, .{?usize}) orelse continue;
 			if(gen != null)
 				gen.?.deinit();
-			if(a[0] != null and a[0].?%Generation.programsPerThread != 0) {
-				try stdout.print(color.red++"Population count must be a multiple of {d}.\n", .{Generation.programsPerThread});
-				continue;
-			}
 			try stdout.print(color.cyan++"Generation #1\n"++color.default, .{});
 			try stdout.print(  "Creating generation...", .{});
 			gen = try Generation.random(ally, rng, goal, a[0] orelse 1000, optmem);
