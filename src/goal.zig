@@ -27,19 +27,19 @@ pub const Goal = struct {
 /// Levenshtein distance
 fn stringDist(s: []const u8, t: []const u8) usize {
 	// mostly stolen from https://en.wikipedia.org/wiki/Levenshtein_distance and ziggified
-	// don't really understand how it works
-	var v0 = init: {
+	const baseCost = 16;
+	var v0 = comptime init: {
 		var ret: [Generation.numCycles]usize = undefined;
 		for(0..Generation.numCycles) |i|
-			ret[i] = i;
+			ret[i] = baseCost*i;
 		break :init ret;
 	};
 	var v1 = [_]usize { 0 } ** Generation.numCycles;
 	for(0..s.len) |i| {
-		v1[0] = i+1;
+		v1[0] = baseCost*(i+1);
 		for(0..t.len) |j| {
-			const deletionCost = v0[j+1]+255;
-			const insertionCost = v1[j]+255;
+			const deletionCost = v0[j+1]+baseCost;
+			const insertionCost = v1[j]+baseCost;
 			const subsitutionCost = v0[j]+@abs(@as(i16, @intCast(s[i]))-@as(i16, @intCast(t[j])));
 			// const deletionCost = v0[j+1]+1;
 			// const insertionCost = v1[j]+1;
@@ -52,6 +52,14 @@ fn stringDist(s: []const u8, t: []const u8) usize {
 	}
 	return v0[t.len];
 }
+
+// test "string distance" {
+// 	std.debug.print("\n", .{});
+// 	std.debug.print("{d}\n", .{stringDist("Hello, World!", "elm!")});
+// 	std.debug.print("{d}\n", .{stringDist("Hello, World!", "flm!")});
+// 	std.debug.print("{d}\n", .{stringDist("Hello, World!", "")});
+// 	std.debug.print("\n", .{});
+// }
 
 fn print1(p: Program) i64 {
 	var ret: i64 = 0;
