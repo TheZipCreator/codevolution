@@ -34,7 +34,7 @@ pub fn main() !void {
 			gen.?.deinit();
 	}
 
-	var mutChance: f64 = 0.2;
+	var mutChance: f64 = 1;
 	var goal = goals.print1;
 	var optmem: bool = false;
 
@@ -114,7 +114,7 @@ pub fn main() !void {
 				try stdout.print(color.red++"A generation must be created before it can be viewed.\n", .{});
 				continue;
 			}
-			const max = a[0] orelse 30;
+			const max = a[0] orelse 25;
 			for(gen.?.programs, 0..) |p, i| {
 				if(i > max-1)
 					break;

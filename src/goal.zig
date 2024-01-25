@@ -25,9 +25,8 @@ pub const Goal = struct {
 };
 
 /// Levenshtein distance
-fn stringDist(s: []const u8, t: []const u8) usize {
+fn stringDist(comptime baseCost: comptime_int, s: []const u8, t: []const u8) usize {
 	// mostly stolen from https://en.wikipedia.org/wiki/Levenshtein_distance and ziggified
-	const baseCost = 16;
 	var v0 = comptime init: {
 		var ret: [Generation.numCycles]usize = undefined;
 		for(0..Generation.numCycles) |i|
@@ -71,7 +70,7 @@ fn print1(p: Program) i64 {
 }
 
 fn helloWorld(p: Program) i64 {
-	return -@as(i64, @intCast(stringDist("Hello, World!", p.output.items)));
+	return -@as(i64, @intCast(stringDist(16, "Hello, World!", p.output.items)));
 }
 
 fn increasing(p: Program) i64 {
@@ -88,21 +87,35 @@ fn increasing(p: Program) i64 {
 
 
 fn randomInput(ally: Allocator, rng: Random) ![]const u8 {
-	const str = try ally.alloc(u8, Generation.numCycles/3); // the minimum program is smth like input -> output -> repeat, which is 3 cycles per char
+	const str = try ally.alloc(u8, Generation.numCycles); // numCycles is the most possible output
 	for(str) |*c|
 		c.* = rng.int(u8);
 	return str;
 }
 
+inline fn outDist(a: u8, b: u8) i64 {
+	return @intCast(@abs(@as(i64, @intCast(a))-@as(i64, @intCast(b))));
+}
+
 fn catFitness(p: Program) i64 {
-	return -@as(i64, @intCast(stringDist(p.input, p.output.items)));
+	var ret: i64 = @intCast(p.output.items.len);
+	for(p.output.items, 0..) |o, i|
+		ret -= outDist(o, p.input[i]);
+	return ret;
 }
 
 fn doubleFitness(p: Program) i64 {
-	var doubled: [Generation.numCycles/3]u8 = undefined;
-	for(&doubled, 0..) |*d, i|
-		d.* = p.input[i]*%2;
-	return -@as(i64, @intCast(stringDist(&doubled, p.output.items)));
+	var ret: i64 = @intCast(p.output.items.len);
+	for(p.output.items, 0..) |o, i|
+		ret -= outDist(o, p.input[i]*%2);
+	return ret;
+}
+
+fn add8Fitness(p: Program) i64 {
+	var ret: i64 = @intCast(p.output.items.len*10);
+	for(p.output.items, 0..) |o, i|
+		ret -= outDist(o, p.input[i]+%8);
+	return ret;
 }
 
 /// Existing goals
@@ -129,9 +142,15 @@ pub const goals = .{
 		.input = &randomInput,
 		.fitness = &catFitness
 	},
+	.add8 = Goal {
+		.name = "add8",
+		.desc = "Values in the output should be those in the input plus 8. Fitness is measured by the negative levenshtein distance between the input and output.",
+		.input = &randomInput,
+		.fitness = &add8Fitness
+	},
 	.double = Goal {
 		.name = "double",
-		.desc = "Values in the output should be twice those in the output. Fitness is measured by the negative levenshtein distance between the input and output.",
+		.desc = "Values in the output should be twice those in the input. Fitness is measured by the negative levenshtein distance between the input and output.",
 		.input = &randomInput,
 		.fitness = &doubleFitness
 	}
