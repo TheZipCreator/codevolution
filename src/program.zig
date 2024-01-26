@@ -212,7 +212,14 @@ pub const Program = struct {
 			self.code[0] = Instruction.random(rng);
 			return;
 		}
-		const mutType = rng.enumValue(enum { modify, replace, swap, add, remove });
+		const MutType = enum {
+			modify, // modify an instruction
+			replace, // replace an instruction with a new instruction
+			swap, // swap two instructions
+			add, // add an instruction
+			remove // remove an instruction
+		};
+		const mutType =  ([_]MutType { .modify, .replace, .swap, .add, .remove})[rng.weightedIndex(f64, &.{12.5, 12.5, 12.5, 12.5, 50})];
 		// *maybe* I should've made `code` an ArrayList so I wouldn't have to do manual array management here, but whatever
 		switch(mutType) {
 			.modify => self.code[rng.uintLessThan(usize, self.code.len)].mutate(rng),

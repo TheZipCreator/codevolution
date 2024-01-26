@@ -258,6 +258,11 @@ pub const Generation = struct {
 		prgm: *PrgmFit
 	};
 
+	inline fn evaluateProgram(goal: Goal, p: Program) i64 {
+		return goal.fitness(p)*10-@as(i64, @intCast(p.code.len));
+		// return goal.fitness(p);
+	}
+
 	// a single thread running programs
 	fn runThread(data_: *anyopaque) !void {
 		var data: *RunData = @ptrCast(@alignCast(data_));
@@ -272,7 +277,7 @@ pub const Generation = struct {
 				if(prgm.terminated())
 					break;
 			}
-			p.fitness = data.goal.fitness(prgm.*);
+			p.fitness = evaluateProgram(data.goal, prgm.*);
 			if(!data.optmem)
 				p.tree.fitness = p.fitness;
 		} else {
@@ -285,7 +290,7 @@ pub const Generation = struct {
 				if(prgm.terminated())
 					break;
 			}
-			p.fitness = data.goal.fitness(prgm.*);
+			p.fitness = evaluateProgram(data.goal, prgm.*);
 			if(!data.optmem)
 				p.tree.fitness = p.fitness;
 		}

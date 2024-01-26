@@ -28,4 +28,8 @@ A add r4, r5
   sub r1, 248
   jmp D
 ```
-This basically alternates between outputting the input (as in `cat`) and then outputting the input minus 248 (which is the same as adding 8, as said previously). It gets a much higher fitness than its competitors but it still isn't optimal quite yet.
+This basically alternates between outputting the input (as in `cat`) and then outputting the input minus 248 (which is the same as adding 8, as said previously). It gets a much higher fitness than its competitors but it still isn't optimal quite yet. (eventually it just started skipping over the part where it outputs 1 every other loop cycle, so it became almost optimal)
+
+I added a term to the fitness function to discourage longer programs. It multiplies the previous fitness by 10 (giving it a weight) and removes 1 per every instruction used. This seems to work. Although it takes a bit to remove instructions.
+
+I added a bias to removing instructions (now 50% of the time it removes an instruction, and the other 50% of the time it does any of the other things)
