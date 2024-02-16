@@ -32,4 +32,8 @@ This basically alternates between outputting the input (as in `cat`) and then ou
 
 I added a term to the fitness function to discourage longer programs. It multiplies the previous fitness by 10 (giving it a weight) and removes 1 per every instruction used. This seems to work. Although it takes a bit to remove instructions.
 
-I added a bias to removing instructions (now 50% of the time it removes an instruction, and the other 50% of the time it does any of the other things)
+I added a bias to removing instructions (now 50% of the time it removes an instruction, and the other 50% of the time it does any of the other things). It seems to reduce program size a lot quicker with this.
+
+It seems that having a bias for shorter programs does occasionally harm it though. For example, in the `double` task it seems to just generate no code, since that gives higher fitness than outputting anything.
+
+Actually, that appeared to be more an issue with `double`'s fitness function. It uses the same sort of distance that tasks like `add8` uses, but I changed it to "multiplicative" distance (e.g. output/input)

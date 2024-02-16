@@ -98,6 +98,14 @@ pub const Program = struct {
 		// fill with random instructions
 		for(code) |*c|
 			c.* = Instruction.random(rng);
+		// const code = try ally.alloc(Instruction, 2);
+		// code[0] = .{ .out = .{ .mode = .imm, .val = 0 } };
+		// code[1] = .{ .jmp = -1 };
+		// const code = try ally.alloc(Instruction, 4);
+		// code[0] = .{ .in = 0 };
+		// code[1] = .{ .op = .{ .op = .mul, .mode = .imm, .reg = 0, .val = 7 } };
+		// code[2] = .{ .out = .{ .mode = .reg, .val = 0 } };
+		// code[3] = .{ .jmp = -3 };
 		// generate name
 		// TODO have some way to check for uniqueness. right now it just hopes the name is unique
 		const name = try genName(ally, rng);

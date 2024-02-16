@@ -259,8 +259,11 @@ pub const Generation = struct {
 	};
 
 	inline fn evaluateProgram(goal: Goal, p: Program) i64 {
-		return goal.fitness(p)*10-@as(i64, @intCast(p.code.len));
-		// return goal.fitness(p);
+		if(goal.includeLengthInFitness) {
+			return goal.fitness(p)*10-@as(i64, @intCast(p.code.len));
+		} else {
+			return goal.fitness(p);
+		}
 	}
 
 	// a single thread running programs
