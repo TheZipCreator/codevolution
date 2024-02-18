@@ -17,6 +17,7 @@ pub const Goal = struct {
 	input: ?*const fn(Allocator, Random) anyerror![]const u8 = null, // returned slice is owned by the caller and must be freed
 	fitness: *const fn(Program) i64,
 	outputAsString: bool = false, // whether output is a string (for ease of use)
+	includeLengthInFitness: bool = true, // whether to include length as part of fitness calculation
 
 	pub fn write(self: Goal, writer: anytype) !void {
 		try writer.print(color.green++"{s}\n"++color.default, .{self.name});
@@ -51,14 +52,6 @@ fn stringDist(comptime baseCost: comptime_int, s: []const u8, t: []const u8) usi
 	}
 	return v0[t.len];
 }
-
-// test "string distance" {
-// 	std.debug.print("\n", .{});
-// 	std.debug.print("{d}\n", .{stringDist("Hello, World!", "elm!")});
-// 	std.debug.print("{d}\n", .{stringDist("Hello, World!", "flm!")});
-// 	std.debug.print("{d}\n", .{stringDist("Hello, World!", "")});
-// 	std.debug.print("\n", .{});
-// }
 
 fn print1(p: Program) i64 {
 	var ret: i64 = 0;
@@ -104,10 +97,23 @@ fn catFitness(p: Program) i64 {
 	return ret;
 }
 
-fn doubleFitness(p: Program) i64 {
-	var ret: i64 = @intCast(p.output.items.len);
-	for(p.output.items, 0..) |o, i|
-		ret -= outDist(o, p.input[i]*%2);
+fn octupleFitness(p: Program) i64 {
+	const fitMult = 100;
+	var ret: i64 = @intCast(p.output.items.len*fitMult);
+	for(p.output.items, 0..) |out, i| {
+		ret += fitMult;
+		// use "multiplicative" distance (e.g. dist = 2 when output = input*2)
+		const in = p.input[i]*%8;
+		const mult: f64 = 
+			if(in == 0 and out == 0)
+				0
+			else if((in == 0 and out != 0) or (out == 0 and in != 0))
+				8 // arbitrary high number
+			else
+				@abs(@as(f64, @floatFromInt(out))/(@as(f64, @floatFromInt(in)))-1);
+		ret -= @intFromFloat(mult*fitMult);
+		// std.debug.print("{} {} {d} -> {}\n", .{in, out, mult, ret});
+	}
 	return ret;
 }
 
@@ -138,20 +144,25 @@ pub const goals = .{
 	},
 	.cat = Goal {
 		.name = "cat",
-		.desc = "Input should be the same as output. Fitness is measured by the negative levenshtein distance between the input and output.",
+		.desc = "Input should be the same as output. Fitness is measured by output length minus difference of input and output.",
 		.input = &randomInput,
 		.fitness = &catFitness
 	},
 	.add8 = Goal {
 		.name = "add8",
-		.desc = "Values in the output should be those in the input plus 8. Fitness is measured by the negative levenshtein distance between the input and output.",
+		.desc = "Values in the output should be those in the input plus 8. Fitness is measured by output length minus difference of input+8 and output.",
 		.input = &randomInput,
 		.fitness = &add8Fitness
 	},
-	.double = Goal {
-		.name = "double",
-		.desc = "Values in the output should be twice those in the input. Fitness is measured by the negative levenshtein distance between the input and output.",
+	.octuple = Goal {
+		.name = "octuple",
+		.desc = "Values in the output should be eight times those in the input. Fitness is measured by output length minus difference of input*8 and output",
 		.input = &randomInput,
-		.fitness = &doubleFitness
-	}
+		.fitness = &octupleFitness,
+		.includeLengthInFitness = false
+	},
+	// .hex = Goal {
+	// 	.name = "hex",
+	// 	.desc = "Output should be the given string outputted in hex. 
+	// }
 };
