@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 
+# Creates a heatmap of population size and mutation rate on fitness in a given goal.
+
 import numpy as np;
 import subprocess;
 import json;

@@ -129,7 +129,8 @@ pub const goals = .{
 	.print1 = Goal {
 		.name = "print1",
 		.desc = "Print as many ones as possible. Fitness is how many ones are outputted.",
-		.fitness = &print1
+		.fitness = &print1,
+		.includeLengthInFitness = false
 	},
 	.helloWorld = Goal {
 		.name = "hello-world",

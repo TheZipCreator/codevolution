@@ -1,0 +1,19 @@
+%YAML 1.2
+---
+# sublime syntax file for codevolution assembly.
+# This exists to be used in the paper (since typst uses sublime syntax files.)
+
+name: Codevolution Assembly
+file_extensions: [cv]
+scope: source.cv
+
+contexts:
+  main:
+    - match: \b(mov|in|out|jmp|add|sub|mul|div)
+      scope: keyword.cv
+    - match: \b(r[0-9])\b
+      scope: variable.register.cv
+    - match: \b([A-Z])\b
+      scope: entity.label.cv
+    - match: \b[0-9]+\b
+      scope: constant.numeric.cv
