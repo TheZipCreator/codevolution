@@ -17,3 +17,5 @@ contexts:
       scope: entity.label.cv
     - match: \b[0-9]+\b
       scope: constant.numeric.cv
+    - match: ;.*$
+      scope: comment.cv
