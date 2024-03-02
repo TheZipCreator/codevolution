@@ -25,7 +25,7 @@ pub const Goal = struct {
 	}
 };
 
-/// Levenshtein distance
+/// Levenshtein distance, adjusted for ASCII differences.
 fn stringDist(comptime baseCost: comptime_int, s: []const u8, t: []const u8) usize {
 	// mostly stolen from https://en.wikipedia.org/wiki/Levenshtein_distance and ziggified
 	var v0 = comptime init: {
@@ -53,6 +53,31 @@ fn stringDist(comptime baseCost: comptime_int, s: []const u8, t: []const u8) usi
 	return v0[t.len];
 }
 
+/// Levenshtein distance, unadjsuted.
+fn stringDistUnadjusted(comptime baseCost: comptime_int, s: []const u8, t: []const u8) usize {
+	// mostly stolen from https://en.wikipedia.org/wiki/Levenshtein_distance and ziggified
+	var v0 = comptime init: {
+		var ret: [Generation.numCycles]usize = undefined;
+		for(0..Generation.numCycles) |i|
+			ret[i] = baseCost*i;
+		break :init ret;
+	};
+	var v1 = [_]usize { 0 } ** Generation.numCycles;
+	for(0..s.len) |i| {
+		v1[0] = baseCost*(i+1);
+		for(0..t.len) |j| {
+			const deletionCost = v0[j+1]+baseCost;
+			const insertionCost = v1[j]+baseCost;
+			const subsitutionCost = if(s[i] == t[j]) v0[j] else v0[j]+baseCost;
+			v1[j+1] = @min(deletionCost, @min(insertionCost, subsitutionCost));
+		}
+		// swap v0 with v1
+		for(&v0, &v1) |*a, *b|
+			std.mem.swap(usize, a, b);
+	}
+	return v0[t.len];
+}
+
 fn print1(p: Program) i64 {
 	var ret: i64 = 0;
 	for(p.output.items) |b| {
@@ -64,6 +89,9 @@ fn print1(p: Program) i64 {
 
 fn helloWorld(p: Program) i64 {
 	return -@as(i64, @intCast(stringDist(16, "Hello, World!", p.output.items)));
+}
+fn helloWorldUnadjusted(p: Program) i64 {
+	return -@as(i64, @intCast(stringDistUnadjusted(16, "Hello, World!", p.output.items)));
 }
 
 fn increasing(p: Program) i64 {
@@ -134,9 +162,17 @@ pub const goals = .{
 	},
 	.helloWorld = Goal {
 		.name = "hello-world",
-		.desc = "Print the string 'Hello, World!'. Fitness is the negative levenshtein distance.",
+		.desc = "Print the string 'Hello, World!'. Fitness is the negative levenshtein distance, adjusting for ASCII differences in characters..",
 		.fitness = &helloWorld,
-		.outputAsString = true
+		.outputAsString = true,
+		.includeLengthInFitness = false
+	},
+	.helloWorldUnadjusted = Goal {
+		.name = "hello-world-unadjusted",
+		.desc = "Print the string 'Hello, World!'. Fitness is the negative levenshtein distance.",
+		.fitness = &helloWorldUnadjusted,
+		.outputAsString = true,
+		.includeLengthInFitness = false
 	},
 	.increasing = Goal { 
 		.name = "increasing",
