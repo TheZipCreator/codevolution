@@ -20,7 +20,7 @@ data = [];
 
 for i in range(trials):
     filename = f"data/trial-{i}.json";
-    # subprocess.run(["./zig-out/bin/codevolution"], input=f"optmem true\nnew\ngoal {goal}\nnext {generations}\nexport-stats {filename}\nexit".encode("utf-8"));
+    subprocess.run(["./zig-out/bin/codevolution"], input=f"optmem true\nnew\ngoal {goal}\nnext {generations}\nexport-stats {filename}\nexit".encode("utf-8"));
     with open(filename) as f:
         stats = json.load(f);
         data.append(stats["fitness"]["median"]);

@@ -44,7 +44,6 @@ for adjusted in [False, True]:
                 
         array[i] /= numTrials;
 
-# print(adjusted_data);
 
 # show graph
 ax = sns.lineplot(data = pd.DataFrame({

@@ -61,19 +61,21 @@ pub const Tree = struct {
 	pub fn write(self: Tree, writer: anytype) !void {
 		try writer.print(color.green++"Name "++color.default++"- "++color.yellow++"{s}\n", .{self.name});
 		try writer.print(color.green++"Generation "++color.default++"- "++color.yellow++"{d}\n", .{self.generation});
-		try writer.print(color.green++"Lineage "++color.default++"- ", .{});
-		{
-			var curr: ?*const Tree = &self;
-			var i: usize = 0;
-			while(curr) |t| {
-				if(i != 0)
-					try writer.print(color.default++" <- ", .{});
-				try writer.print(color.yellow++"{s}", .{t.name});
-				i += 1;
-				curr = t.parent;
+		if(self.parent != null) {
+			try writer.print(color.green++"Lineage "++color.default++"- ", .{});
+			{
+				var curr: ?*const Tree = &self;
+				var i: usize = 0;
+				while(curr) |t| {
+					if(i != 0)
+						try writer.print(color.default++" <- ", .{});
+					try writer.print(color.yellow++"{s}", .{t.name});
+					i += 1;
+					curr = t.parent;
+				}
 			}
+			try writer.print("\n", .{});
 		}
-		try writer.print("\n", .{});
 		if(self.childrenEnd > 0) {
 			try writer.print(color.green++"Children "++color.default++"- ", .{});
 			for(self.children[0..self.childrenEnd], 0..) |c, i| {
@@ -81,8 +83,8 @@ pub const Tree = struct {
 					try writer.print(color.default++", ", .{});
 				try writer.print(color.yellow++"{s}", .{c.name});
 			}
+			try writer.print("\n", .{});
 		}
-		try writer.print("\n", .{});
 		if(self.parent != null) {
 			try writer.print(color.green++"Siblings "++color.default++"- ", .{});
 			var i: usize = 0;

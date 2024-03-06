@@ -17,7 +17,7 @@ pub const Goal = struct {
 	input: ?*const fn(Allocator, Random) anyerror![]const u8 = null, // returned slice is owned by the caller and must be freed
 	fitness: *const fn(Program) i64,
 	outputAsString: bool = false, // whether output is a string (for ease of use)
-	includeLengthInFitness: bool = true, // whether to include length as part of fitness calculation
+	includeLengthInFitness: bool = false, // whether to include length as part of fitness calculation
 
 	pub fn write(self: Goal, writer: anytype) !void {
 		try writer.print(color.green++"{s}\n"++color.default, .{self.name});
@@ -158,21 +158,18 @@ pub const goals = .{
 		.name = "print1",
 		.desc = "Print as many ones as possible. Fitness is how many ones are outputted.",
 		.fitness = &print1,
-		.includeLengthInFitness = false
 	},
 	.helloWorld = Goal {
 		.name = "hello-world",
 		.desc = "Print the string 'Hello, World!'. Fitness is the negative levenshtein distance, adjusting for ASCII differences in characters..",
 		.fitness = &helloWorld,
 		.outputAsString = true,
-		.includeLengthInFitness = false
 	},
 	.helloWorldUnadjusted = Goal {
 		.name = "hello-world-unadjusted",
 		.desc = "Print the string 'Hello, World!'. Fitness is the negative levenshtein distance.",
 		.fitness = &helloWorldUnadjusted,
 		.outputAsString = true,
-		.includeLengthInFitness = false
 	},
 	.increasing = Goal { 
 		.name = "increasing",
@@ -196,7 +193,6 @@ pub const goals = .{
 		.desc = "Values in the output should be eight times those in the input. Fitness is measured by output length minus difference of input*8 and output",
 		.input = &randomInput,
 		.fitness = &octupleFitness,
-		.includeLengthInFitness = false
 	},
 	// .hex = Goal {
 	// 	.name = "hex",

@@ -33,7 +33,7 @@ for trial in range(num_trials):
             size = (j+1)*size_step; 
             print(f"\nRunning with size={size} and mutation rate={mut}%\n");
             filename = f"./data/trial-{trial}-size{size}-mut{mut}.json";
-            # subprocess.run(["./zig-out/bin/codevolution"], input=f"optmem true\ngoal {goal}\nmut {mut}\nnew {size}\nnext {generations}\nexport-stats {filename}\nexit".encode("utf-8"));
+            subprocess.run(["./zig-out/bin/codevolution"], input=f"optmem true\ngoal {goal}\nmut {mut}\nnew {size}\nnext {generations}\nexport-stats {filename}\nexit".encode("utf-8"));
             with open(filename) as f:
                 stats = json.load(f);
                 data[i, j] += stats["fitness"]["median"];
