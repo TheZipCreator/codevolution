@@ -28,7 +28,7 @@ for adjusted in [False, True]:
             stdin += f"export-stats {filename(adjusted, i, j)}\nnext\n"
 
 # run process
-# subprocess.run(["./zig-out/bin/codevolution"], input=stdin.encode("utf-8"));
+subprocess.run(["./zig-out/bin/codevolution"], input=stdin.encode("utf-8"));
 
 # get graph data
 adjusted_data = np.zeros(numGenerations, dtype = np.int64);
